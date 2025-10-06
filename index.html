@@ -6,7 +6,7 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
     <style>
-        /* Estilo para garantir que o vídeo comece a rodar automaticamente */
+        body { margin: 0; overflow: hidden; }
         #ar-button {
             position: absolute;
             bottom: 20px;
@@ -24,33 +24,34 @@
     </style>
 
     <script>
-        // Função para iniciar o áudio do vídeo (necessário em muitos navegadores)
         AFRAME.registerComponent('video-handler', {
             init: function () {
                 const videoEl = document.querySelector('#video-asset');
                 const arButton = document.querySelector('#ar-button');
-                const videoHandler = this;
-
-                // Espera a cena carregar e o botão ser clicado para tentar tocar o áudio.
+                
                 arButton.addEventListener('click', function() {
+                    videoEl.muted = false;
+                    videoEl.play();
+                    arButton.style.display = 'none';
+                });
+                
+                this.el.addEventListener('markerFound', function() {
                     videoEl.play();
                 });
                 
-                // Opção para reativar o vídeo/som caso ele pare
-                this.el.addEventListener('markerFound', function() {
-                    videoEl.play();
+                this.el.addEventListener('markerLost', function() {
+                    videoEl.pause();
                 });
             }
         });
     </script>
 </head>
 
-<body style='margin : 0px; overflow: hidden;'>
-
+<body>
     <a-scene 
         embedded 
-        arjs='sourceType: webcam; detectionMode: mono; patternRatio: 0.9; debugUIEnabled: false;'
-        video-handler 
+        arjs='trackingMethod: mono; sourceType: webcam; patternRatio: 0.9; debugUIEnabled: false;'
+        video-handler
     >
         <a-assets>
             <video 
@@ -67,27 +68,21 @@
 
         <a-marker 
             type='pattern' 
-            url='gatilho.patt' 
-            raycaster="objects: .clickable" 
-            cursor="fuse: false; rayOrigin: mouse"
+            url='gatilho.patt'
         >
             <a-video 
                 src="#video-asset" 
-                width="1.5" 
-                height="2.5" 
-                position="0 0.7 0" 
+                width="1" 
+                height="1.5" 
+                position="0 0 0" 
                 rotation="-90 0 0" 
-                scale="1.5 1.5 1.5"
-                muted="false" 
-                onclick="this.components.material.material.map.image.play();"
+                scale="1 1 1"
             ></a-video>
         </a-marker>
 
         <a-entity camera></a-entity>
-        
     </a-scene>
 
     <button id="ar-button">Toque para Iniciar RA e Som</button>
-    
-    </body>
+</body>
 </html>
