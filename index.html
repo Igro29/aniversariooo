@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aniversário RA - Foto Gatilho</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        /* Estilo para garantir que o vídeo comece a rodar automaticamente */
+        #ar-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        // Função para iniciar o áudio do vídeo (necessário em muitos navegadores)
+        AFRAME.registerComponent('video-handler', {
+            init: function () {
+                const videoEl = document.querySelector('#video-asset');
+                const arButton = document.querySelector('#ar-button');
+                const videoHandler = this;
+
+                // Espera a cena carregar e o botão ser clicado para tentar tocar o áudio.
+                arButton.addEventListener('click', function() {
+                    videoEl.play();
+                });
+                
+                // Opção para reativar o vídeo/som caso ele pare
+                this.el.addEventListener('markerFound', function() {
+                    videoEl.play();
+                });
+            }
+        });
+    </script>
+</head>
+
+<body style='margin : 0px; overflow: hidden;'>
+
+    <a-scene 
+        embedded 
+        arjs='sourceType: webcam; detectionMode: mono; patternRatio: 0.9; debugUIEnabled: false;'
+        video-handler 
+    >
+        <a-assets>
+            <video 
+                id="video-asset" 
+                src="video.mp4" 
+                preload="auto" 
+                loop="true" 
+                crossorigin="anonymous" 
+                webkit-playsinline 
+                playsinline 
+                muted="true"
+            ></video>
+        </a-assets>
+
+        <a-marker 
+            type='pattern' 
+            url='gatilho.patt' 
+            raycaster="objects: .clickable" 
+            cursor="fuse: false; rayOrigin: mouse"
+        >
+            <a-video 
+                src="#video-asset" 
+                width="1.5" 
+                height="2.5" 
+                position="0 0.7 0" 
+                rotation="-90 0 0" 
+                scale="1.5 1.5 1.5"
+                muted="false" 
+                onclick="this.components.material.material.map.image.play();"
+            ></a-video>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+        
+    </a-scene>
+
+    <button id="ar-button">Toque para Iniciar RA e Som</button>
+    
+    </body>
+</html>
